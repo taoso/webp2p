@@ -1,6 +1,6 @@
-var PeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-var SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-var IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+var PeerConnection = window.webkitRTCPeerConnection;
+var SessionDescription = window.RTCSessionDescription;
+var IceCandidate = window.RTCIceCandidate;
 var pc;
 var channel;
 var startP2p;
