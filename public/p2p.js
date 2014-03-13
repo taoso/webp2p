@@ -1,29 +1,28 @@
-var PeerConnection = window.webkitRTCPeerConnection;
-var SessionDescription = window.RTCSessionDescription;
-var IceCandidate = window.RTCIceCandidate;
-var pc;
-var channels = {};
-var startP2p;
-var server = {
-  iceServers: [
-    {url: "stun:23.21.150.121"},
-    {url: "stun:stun.l.google.com:19302"},
-    {url: "turn:numb.viagenie.ca", credential: "webrtcdemo", username: "louis%40mozilla.com"}
-  ]
-};
-var options = {
-  optional: [
-    {DtlsSrtpKeyAgreement: true},
-    {RtpDataChannels: true} //required for Firefox
-  ]
-};
+var P2P = function (username, socket) {
+  var PeerConnection = window.webkitRTCPeerConnection;
+  var SessionDescription = window.RTCSessionDescription;
+  var IceCandidate = window.RTCIceCandidate;
 
-var username = prompt('User Name');
-var socket = io.connect('http://localhost:3000');
-socket.on('welcome', function (data) {
+  var pc;
+  var channels = {};
+  var server = {
+    iceServers: [
+      {url: "stun:23.21.150.121"},
+      {url: "stun:stun.l.google.com:19302"},
+      {url: "turn:numb.viagenie.ca", credential: "webrtcdemo", username: "louis%40mozilla.com"}
+    ]
+  };
+
+  var options = {
+    optional: [
+      {DtlsSrtpKeyAgreement: true},
+      {RtpDataChannels: true} //required for Firefox
+    ]
+  };
+
   socket.emit('join', {username: username});
 
-  startP2p = function (isInitiator, to) {
+  var startP2p = function (isInitiator, to) {
     pc = new PeerConnection(server, options);
     pc.onicecandidate = function (e) {
       if (!e.candidate) return;
@@ -58,6 +57,7 @@ socket.on('welcome', function (data) {
       };
     }
   };
+
   socket.on('message', function (data) {
     if (!pc) startP2p(false, data.from);
     if (data.data.sdp) {
@@ -75,4 +75,10 @@ socket.on('welcome', function (data) {
       pc.addIceCandidate(new IceCandidate(data.data.candidate));
     }
   });
-});
+
+  return {
+    startP2p: startP2p,
+    pc: pc,
+    channels: channels,
+  };
+};
