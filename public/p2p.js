@@ -23,6 +23,7 @@ var P2P = function (username, socket) {
   socket.emit('join', {username: username});
 
   var startP2p = function (isInitiator, to) {
+    if (to === username) return;
     pc = new PeerConnection(server, options);
     pc.onicecandidate = function (e) {
       if (!e.candidate) return;
