@@ -2,16 +2,7 @@
   <head>
     <title>WebP2P</title>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var username = prompt('User Name');
-      var socket = io.connect('http://localhost:3000');
-      socket.on('welcome', function (data) {
-        socket.emit('join', {username: username});
-        socket.on('message', function (data) {
-          console.log(data);
-        });
-      });
-    </script>
+    <script src="p2p.js"></script>
   </head>
   <body></body>
 </html>
