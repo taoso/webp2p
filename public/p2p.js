@@ -2,7 +2,7 @@ var PeerConnection = window.webkitRTCPeerConnection;
 var SessionDescription = window.RTCSessionDescription;
 var IceCandidate = window.RTCIceCandidate;
 var pc;
-var channel;
+var channels = {};
 var startP2p;
 var server = {
   iceServers: [
@@ -39,12 +39,13 @@ socket.on('welcome', function (data) {
       }, function (err) { console.log('offer', err); });
     };
     if (isInitiator) {
-      channel = pc.createDataChannel('chat');
+      var channel = pc.createDataChannel('chat');
       channel.onopen = function () {
         channel.onmessage = function (e) {
           console.log(e);
         };
       };
+      channels[channel.label] = channel;
     } else {
       pc.ondatachannel = function (e) {
         channel = e.channel;
@@ -53,6 +54,7 @@ socket.on('welcome', function (data) {
             console.log(e);
           };
         };
+        channels[channel.label] = channel;
       };
     }
   };
