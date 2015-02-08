@@ -1,7 +1,7 @@
 var P2P = function (username, socket) {
-  var PeerConnection = window.webkitRTCPeerConnection;
-  var SessionDescription = window.RTCSessionDescription;
-  var IceCandidate = window.RTCIceCandidate;
+  var PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+  var SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+  var IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
   var pc;
   var channels = {};
@@ -16,7 +16,6 @@ var P2P = function (username, socket) {
   var options = {
     optional: [
       {DtlsSrtpKeyAgreement: true},
-      {RtpDataChannels: true} //required for Firefox
     ]
   };
 
@@ -24,11 +23,14 @@ var P2P = function (username, socket) {
 
   var startP2p = function (isInitiator, to) {
     if (to === username) return;
+
     pc = new PeerConnection(server, options);
     pc.onicecandidate = function (e) {
       if (!e.candidate) return;
+
       socket.emit('message', { to: to, data: { 'candidate': e.candidate } });
     };
+
     pc.onnegotiationneeded = function () {
       pc.createOffer(function (offer) {
         pc.setLocalDescription(offer, function () {
@@ -38,6 +40,7 @@ var P2P = function (username, socket) {
         });
       }, function (err) { console.log('offer', err); });
     };
+
     if (isInitiator) {
       var channel = pc.createDataChannel('chat');
       channel.onopen = function () {
