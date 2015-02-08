@@ -1,8 +1,8 @@
 var P2P = function (username, socket) {
   // 标准化 RTC 对象名称
-  var PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-  var SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
-  var IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
+  var RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+  var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+  var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
   // RTCPeerConnection 实例
   var pc;
@@ -32,7 +32,7 @@ var P2P = function (username, socket) {
   var startP2p = function (isInitiator, to) {
     if (to === username) return;
 
-    pc = new PeerConnection(server, options);
+    pc = new RTCPeerConnection(server, options);
     // 收到 ICE 则发给连接『接收方』
     pc.onicecandidate = function (e) {
       if (!e.candidate) return;
@@ -81,7 +81,7 @@ var P2P = function (username, socket) {
     if (!pc) startP2p(false, data.from);
 
     if (data.data.sdp) {
-      pc.setRemoteDescription(new SessionDescription(data.data.sdp), function () {
+      pc.setRemoteDescription(new RTCSessionDescription(data.data.sdp), function () {
         if (pc.remoteDescription.type === 'offer')
           pc.createAnswer(function (answer) {
             pc.setLocalDescription(answer , function () {
@@ -92,12 +92,12 @@ var P2P = function (username, socket) {
           }, function (err) { console.log('answer', err); });
       });
     } else {
-      pc.addIceCandidate(new IceCandidate(data.data.candidate));
+      pc.addIceCandidate(new RTCIceCandidate(data.data.candidate));
     }
   });
 
   return {
-    startP2p: startP2p,
+    start: start,
     pc: pc,
     channels: channels,
   };
